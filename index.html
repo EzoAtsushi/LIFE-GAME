@@ -39,10 +39,10 @@
       background:var(--btn);
       color:var(--txt);
       border-radius:10px;
-      padding:10px 12px;
+      padding:9px 12px;
       font-size:14px;
-      line-height:1;
-      height:36px;
+      line-height:1.25;
+      height:40px;
       box-shadow: 0 1px 0 rgba(255,255,255,.9) inset;
     }
     button:active{background:var(--btn2)}
@@ -63,9 +63,9 @@
       border-radius:999px;
       background:rgba(0,0,0,.03);
       color:var(--muted);
-      font-size:12px;
+      font-size:12px;line-height:1.25;
       display:inline-flex;gap:8px;align-items:center;
-      height:36px;
+      height:40px;
       white-space:nowrap;
     }
 
@@ -97,11 +97,8 @@
     <div class="row" id="topRow">
       <button id="toggleMenu">Compact</button>
       <button id="play" class="primary">Play</button>
-      <button id="step">Step</button>
       <button id="random" class="good">Random</button>
       <button id="clear" class="warn">Clear</button>
-      <button id="undo">Undo</button>
-
       <span class="pill" id="stats">Gen: 0 / Alive: 0</span>
       <canvas id="spark" width="140" height="36" aria-label="alive history"></canvas>
     </div>
@@ -250,12 +247,9 @@
   const sctx = spark.getContext("2d", { alpha: false });
 
   const playBtn = document.getElementById("play");
-  const stepBtn = document.getElementById("step");
-  const randomBtn = document.getElementById("random");
+const randomBtn = document.getElementById("random");
   const clearBtn = document.getElementById("clear");
-  const undoBtn = document.getElementById("undo");
-
-  const cellSizeEl = document.getElementById("cellSize");
+const cellSizeEl = document.getElementById("cellSize");
   const speedEl = document.getElementById("speed");
   const densityEl = document.getElementById("density");
   const statsEl = document.getElementById("stats");
@@ -827,12 +821,9 @@
 
   // UI
   playBtn.addEventListener("click", () => setRunning(!running));
-  stepBtn.addEventListener("click", () => { step(); draw(true); });
-  randomBtn.addEventListener("click", () => { pushUndo(); seedRandom((+densityEl.value)/100); draw(true); });
+randomBtn.addEventListener("click", () => { pushUndo(); seedRandom((+densityEl.value)/100); draw(true); });
   clearBtn.addEventListener("click", () => { pushUndo(); clearAll(); draw(true); });
-  undoBtn.addEventListener("click", () => { undo(); });
-
-  cellSizeEl.addEventListener("input", () => {
+cellSizeEl.addEventListener("input", () => {
     cellSize = +cellSizeEl.value;
     resize();
   });
