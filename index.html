@@ -3,64 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Colorful LifeGame</title>
+  <title>Colorful LifeGame+</title>
   <style>
-    :root {
-      --bg: #0b0f18;
-      --panel: rgba(20, 26, 38, 0.78);
-      --line: rgba(255,255,255,0.12);
-      --txt: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.70);
-      --btn: rgba(255,255,255,0.10);
-      --btn2: rgba(255,255,255,0.16);
+    :root{
+      --bg:#0b0f18;
+      --line:rgba(255,255,255,.12);
+      --txt:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --btn:rgba(255,255,255,.10);
+      --btn2:rgba(255,255,255,.18);
+      --accent:rgba(90,180,255,.18);
+      --good:rgba(110,255,180,.14);
+      --warn:rgba(255,190,90,.14);
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--txt); font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
-    #wrap { height: 100%; display: grid; grid-template-rows: auto 1fr; }
-    header {
-      padding: 10px 10px calc(10px + env(safe-area-inset-top));
-      position: sticky; top: 0; z-index: 10;
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+    #wrap{height:100%;display:grid;grid-template-rows:auto 1fr}
+    header{
+      padding:10px 10px calc(10px + env(safe-area-inset-top));
+      position:sticky;top:0;z-index:10;
       backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(11,15,24,0.92), rgba(11,15,24,0.55));
-      border-bottom: 1px solid var(--line);
+      background:linear-gradient(to bottom, rgba(11,15,24,.92), rgba(11,15,24,.55));
+      border-bottom:1px solid var(--line);
     }
-    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .row + .row { margin-top: 8px; }
-    button, select, input[type="range"] {
-      border: 1px solid var(--line);
-      background: var(--btn);
-      color: var(--txt);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 14px;
-      line-height: 1;
+    .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .row + .row{margin-top:8px}
+    button,select,input[type="range"],input[type="text"]{
+      border:1px solid var(--line);
+      background:var(--btn);
+      color:var(--txt);
+      border-radius:10px;
+      padding:10px 12px;
+      font-size:14px;
+      line-height:1;
+      height:36px;
     }
-    button:active { background: var(--btn2); }
-    button.primary { background: rgba(90, 180, 255, 0.18); }
-    .pill {
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      color: var(--muted);
-      font-size: 12px;
-      display: inline-flex; gap: 8px; align-items: center;
+    input[type="text"]{width:120px}
+    input[type="range"]{padding:0;width:160px}
+    button:active{background:var(--btn2)}
+    button.primary{background:var(--accent)}
+    button.good{background:var(--good)}
+    button.warn{background:var(--warn)}
+    .pill{
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      color:var(--muted);
+      font-size:12px;
+      display:inline-flex;gap:8px;align-items:center;
+      height:36px;
+      white-space:nowrap;
     }
-    .kv { display: inline-flex; gap: 8px; align-items: center; }
-    .kv label { font-size: 12px; color: var(--muted); }
-    .kv input[type="range"] { padding: 0; height: 36px; width: 160px; }
-    #canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none; /* iOSでドラッグ描画を安定させる */
-    }
-    footerHint {
-      display: block;
-      padding: 10px 12px;
-      color: rgba(255,255,255,0.62);
-      font-size: 12px;
-    }
+    .kv{display:inline-flex;gap:8px;align-items:center}
+    .kv label{font-size:12px;color:var(--muted)}
+    .hint{display:block;margin-top:8px;padding:8px 10px;color:rgba(255,255,255,.62);font-size:12px;border-left:2px solid rgba(255,255,255,.16)}
+    #canvas{width:100%;height:100%;display:block;touch-action:none}
+    #spark{width:140px;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+    details{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.05)}
+    summary{cursor:pointer;color:var(--muted);font-size:13px}
+    .danger{color:rgba(255,120,120,.92)}
+    .tiny{font-size:11px;color:rgba(255,255,255,.62)}
   </style>
 </head>
 <body>
@@ -69,19 +72,28 @@
     <div class="row">
       <button id="play" class="primary">Play</button>
       <button id="step">Step</button>
-      <button id="random">Random</button>
-      <button id="clear">Clear</button>
+      <button id="random" class="good">Random</button>
+      <button id="clear" class="warn">Clear</button>
+      <button id="undo">Undo</button>
 
       <span class="pill" id="stats">Gen: 0 / Alive: 0</span>
+      <canvas id="spark" width="140" height="36" aria-label="alive history"></canvas>
+    </div>
 
+    <div class="row">
       <span class="kv">
         <label for="cellSize">Cell</label>
-        <input id="cellSize" type="range" min="4" max="24" value="10">
+        <input id="cellSize" type="range" min="4" max="26" value="10">
       </span>
 
       <span class="kv">
         <label for="speed">Speed</label>
         <input id="speed" type="range" min="1" max="60" value="20">
+      </span>
+
+      <span class="kv">
+        <label for="density">Rnd</label>
+        <input id="density" type="range" min="1" max="50" value="18">
       </span>
 
       <span class="kv">
@@ -101,7 +113,95 @@
         </select>
       </span>
     </div>
-    <footerHint>タップ/ドラッグで描画。2本指はスクロール扱いになるので、基本は1本指で描画してください。</footerHint>
+
+    <details id="more">
+      <summary>もっと面白く（スタンプ・ルール・保存）</summary>
+
+      <div class="row" style="margin-top:10px;">
+        <span class="kv">
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="toggle">Toggle</option>
+            <option value="draw">Draw</option>
+            <option value="erase">Erase</option>
+            <option value="stamp">Stamp</option>
+          </select>
+        </span>
+
+        <span class="kv">
+          <label for="pattern">Pattern</label>
+          <select id="pattern">
+            <option value="none">None</option>
+            <option value="glider">Glider</option>
+            <option value="lwss">LWSS</option>
+            <option value="rpent">R-pentomino</option>
+            <option value="pulsar">Pulsar</option>
+            <option value="acorn">Acorn</option>
+            <option value="gun">Gosper gun</option>
+          </select>
+        </span>
+
+        <span class="kv">
+          <label for="rot">Rot</label>
+          <select id="rot">
+            <option value="0">0°</option>
+            <option value="90">90°</option>
+            <option value="180">180°</option>
+            <option value="270">270°</option>
+          </select>
+        </span>
+
+        <span class="kv">
+          <label for="flip">Flip</label>
+          <select id="flip">
+            <option value="none">None</option>
+            <option value="x">X</option>
+            <option value="y">Y</option>
+          </select>
+        </span>
+
+        <span class="kv">
+          <label for="trail">Trail</label>
+          <input id="trail" type="range" min="0" max="60" value="18">
+        </span>
+      </div>
+
+      <div class="row" style="margin-top:8px;">
+        <span class="kv">
+          <label for="rulePreset">Rule</label>
+          <select id="rulePreset">
+            <option value="B3/S23">Life (B3/S23)</option>
+            <option value="B36/S23">HighLife (B36/S23)</option>
+            <option value="B2/S">Seeds (B2/S)</option>
+            <option value="B3/S12345">Maze (B3/S12345)</option>
+            <option value="B3678/S34678">Day&Night (B3678/S34678)</option>
+          </select>
+        </span>
+
+        <span class="kv">
+          <label for="ruleText">Custom</label>
+          <input id="ruleText" type="text" value="B3/S23" inputmode="latin" aria-label="custom rule">
+        </span>
+
+        <button id="applyRule">Apply</button>
+
+        <button id="saveState">Save</button>
+        <button id="loadState">Load</button>
+        <button id="exportState">Export</button>
+        <button id="importState">Import</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none;">
+      </div>
+
+      <div class="hint">
+        ルールは「B（誕生）/S（生存）」です。例：B3/S23 は「周りに3個あると誕生、2か3個なら生存」。
+        <span class="tiny">（B3/S23が定番のライフゲーム）</span>
+        <br>Mode=Stamp のとき、クリックした場所に Pattern を配置します。Undo は手動操作（描画/Random/Clear/Import/Load）だけ戻せます。
+      </div>
+
+      <div class="hint danger">
+        注意：データはブラウザ内保存です。ブラウザのデータ削除をすると消えます。大事なら Export でバックアップしてください（JSONというデータ用ファイル）。
+      </div>
+    </details>
   </header>
 
   <canvas id="canvas"></canvas>
@@ -112,15 +212,37 @@
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d", { alpha: false });
 
+  const spark = document.getElementById("spark");
+  const sctx = spark.getContext("2d", { alpha: false });
+
   const playBtn = document.getElementById("play");
   const stepBtn = document.getElementById("step");
   const randomBtn = document.getElementById("random");
   const clearBtn = document.getElementById("clear");
+  const undoBtn = document.getElementById("undo");
+
   const cellSizeEl = document.getElementById("cellSize");
   const speedEl = document.getElementById("speed");
+  const densityEl = document.getElementById("density");
   const statsEl = document.getElementById("stats");
   const colorModeEl = document.getElementById("colorMode");
   const wrapEdgesEl = document.getElementById("wrapEdges");
+
+  const modeEl = document.getElementById("mode");
+  const patternEl = document.getElementById("pattern");
+  const rotEl = document.getElementById("rot");
+  const flipEl = document.getElementById("flip");
+  const trailEl = document.getElementById("trail");
+
+  const rulePresetEl = document.getElementById("rulePreset");
+  const ruleTextEl = document.getElementById("ruleText");
+  const applyRuleBtn = document.getElementById("applyRule");
+
+  const saveBtn = document.getElementById("saveState");
+  const loadBtn = document.getElementById("loadState");
+  const exportBtn = document.getElementById("exportState");
+  const importBtn = document.getElementById("importState");
+  const importFile = document.getElementById("importFile");
 
   // 状態
   let cellSize = +cellSizeEl.value;
@@ -128,16 +250,60 @@
   let gen = 0;
   let running = false;
 
-  // 0/1の生死と、色用の「年齢」を持つ（年齢は生きている間だけ増える）
-  let alive = null;     // Uint8Array
-  let alive2 = null;    // Uint8Array
-  let age = null;       // Uint16Array
-  let age2 = null;      // Uint16Array
+  let alive = null;
+  let alive2 = null;
+  let age = null;
+  let age2 = null;
 
-  // 描画向け
   let dpr = 1;
   let lastT = 0;
   let acc = 0;
+
+  let lastBirths = 0;
+  let lastDeaths = 0;
+
+  const history = [];
+  const HISTORY_MAX = 200;
+
+  const undoStack = [];
+  const UNDO_MAX = 20;
+
+  let rule = parseRule("B3/S23");
+  let ruleName = "Life";
+
+  const PATTERNS = {
+    none: [],
+    glider: [[1,0],[2,1],[0,2],[1,2],[2,2]],
+    lwss: [[1,0],[2,0],[3,0],[4,0],[0,1],[4,1],[4,2],[0,3],[3,3]],
+    rpent: [[1,0],[2,0],[0,1],[1,1],[1,2]],
+    acorn: [[1,0],[3,1],[0,2],[1,2],[4,2],[5,2],[6,2]],
+    pulsar: [
+      [2,0],[3,0],[4,0],[8,0],[9,0],[10,0],
+      [0,2],[5,2],[7,2],[12,2],
+      [0,3],[5,3],[7,3],[12,3],
+      [0,4],[5,4],[7,4],[12,4],
+      [2,5],[3,5],[4,5],[8,5],[9,5],[10,5],
+      [2,7],[3,7],[4,7],[8,7],[9,7],[10,7],
+      [0,8],[5,8],[7,8],[12,8],
+      [0,9],[5,9],[7,9],[12,9],
+      [0,10],[5,10],[7,10],[12,10],
+      [2,12],[3,12],[4,12],[8,12],[9,12],[10,12],
+    ],
+    gun: [
+      [24,0],
+      [22,1],[24,1],
+      [12,2],[13,2],[20,2],[21,2],[34,2],[35,2],
+      [11,3],[15,3],[20,3],[21,3],[34,3],[35,3],
+      [0,4],[1,4],[10,4],[16,4],[20,4],[21,4],
+      [0,5],[1,5],[10,5],[14,5],[16,5],[17,5],[22,5],[24,5],
+      [10,6],[16,6],[24,6],
+      [11,7],[15,7],
+      [12,8],[13,8]
+    ],
+  };
+
+  function idx(x, y) { return y * cols + x; }
+  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
 
   function resize() {
     dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
@@ -155,14 +321,16 @@
     alive2 = new Uint8Array(cols * rows);
     age = new Uint16Array(cols * rows);
     age2 = new Uint16Array(cols * rows);
-    gen = 0;
 
-    // 初期は少しだけランダムにして見栄えを出す
-    seedRandom(0.12);
+    gen = 0;
+    lastBirths = 0;
+    lastDeaths = 0;
+    history.length = 0;
+    undoStack.length = 0;
+
+    seedRandom((+densityEl.value) / 100);
     draw(true);
   }
-
-  function idx(x, y) { return y * cols + x; }
 
   function seedRandom(density = 0.18) {
     for (let i = 0; i < alive.length; i++) {
@@ -171,12 +339,18 @@
       age[i] = v ? (1 + (Math.random() * 6 | 0)) : 0;
     }
     gen = 0;
+    lastBirths = 0;
+    lastDeaths = 0;
+    pushHistory();
   }
 
   function clearAll() {
     alive.fill(0);
     age.fill(0);
     gen = 0;
+    lastBirths = 0;
+    lastDeaths = 0;
+    pushHistory();
   }
 
   function countNeighbors(x, y, wrap) {
@@ -201,6 +375,7 @@
   function step() {
     const wrap = (wrapEdgesEl.value === "on");
     let aliveCount = 0;
+    let births = 0, deaths = 0;
 
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
@@ -208,66 +383,57 @@
         const a = alive[i];
         const n = countNeighbors(x, y, wrap);
 
-        // ルール（ライフゲーム）
-        // 生存: 2 or 3、誕生: 3
         let next = 0;
-        if (a) next = (n === 2 || n === 3) ? 1 : 0;
-        else next = (n === 3) ? 1 : 0;
+        if (a) next = rule.survive[n] ? 1 : 0;
+        else next = rule.birth[n] ? 1 : 0;
 
         alive2[i] = next;
 
         if (next) {
           aliveCount++;
-          // 年齢：生存継続なら増加、誕生なら1
           age2[i] = a ? Math.min(65535, age[i] + 1) : 1;
+          if (!a) births++;
         } else {
           age2[i] = 0;
+          if (a) deaths++;
         }
       }
     }
 
-    // swap
     [alive, alive2] = [alive2, alive];
     [age, age2] = [age2, age];
 
     gen++;
+    lastBirths = births;
+    lastDeaths = deaths;
+    pushHistory(aliveCount);
+
     return aliveCount;
   }
 
   function colorFor(x, y, a, mode) {
-    // HSLで派手に。iOSでも軽い。
-    // H: 色相(0-360), S: 彩度, L: 明るさ
-    // （HSL＝色を「色合い/鮮やかさ/明るさ」で指定する方式）
     if (!a) return null;
 
     if (mode === "age") {
-      // 年齢で色相が回る＋明るさで“成長”を出す
       const hue = (a * 8) % 360;
       const light = Math.min(70, 28 + a * 0.8);
       return `hsl(${hue} 95% ${light}%)`;
     }
-
     if (mode === "neon") {
-      // ネオン寄り：座標も混ぜて揺らす
       const hue = (a * 10 + x * 2 + y * 1) % 360;
       const light = 55 + Math.min(15, a * 0.15);
       return `hsl(${hue} 100% ${light}%)`;
     }
-
-    // rainbow
-    {
-      // 虹グラデ：座標で色相、年齢で明るさ
-      const hue = (x * 6 + y * 3) % 360;
-      const light = Math.min(70, 35 + a * 0.9);
-      return `hsl(${hue} 95% ${light}%)`;
-    }
+    const hue = (x * 6 + y * 3) % 360;
+    const light = Math.min(70, 35 + a * 0.9);
+    return `hsl(${hue} 95% ${light}%)`;
   }
 
   function draw(forceFull = false) {
-    // 背景を少しだけ残すと軌跡が出て鮮やかに見える
-    // running中は薄くフェード、停止中は完全クリア
-    if (running && !forceFull) {
-      ctx.fillStyle = "rgba(11, 15, 24, 0.18)";
+    const trail = +trailEl.value;
+    if (running && !forceFull && trail > 0) {
+      const alpha = clamp(trail / 200, 0.02, 0.35);
+      ctx.fillStyle = `rgba(11, 15, 24, ${alpha})`;
       ctx.fillRect(0, 0, w, h);
     } else {
       ctx.fillStyle = "#0b0f18";
@@ -287,13 +453,13 @@
         const a = age[i];
         ctx.fillStyle = colorFor(x, y, a, mode);
 
-        // セルに少し“隙間”を作ると見た目が締まる
         const pad = Math.max(1, Math.floor(cellSize * 0.08));
         ctx.fillRect(x * cellSize + pad, py + pad, cellSize - pad * 2, cellSize - pad * 2);
       }
     }
 
-    statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount}`;
+    statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths} / ${ruleName}`;
+    drawSparkline();
   }
 
   function setRunning(on) {
@@ -309,10 +475,9 @@
     lastT = t;
     acc += dt;
 
-    const hz = +speedEl.value;          // 1..60
+    const hz = +speedEl.value;
     const stepSec = 1 / hz;
 
-    // 追いつくまで複数ステップ（重い場合は上限をかける）
     let n = 0;
     while (acc >= stepSec && n < 6) {
       step();
@@ -324,9 +489,156 @@
     requestAnimationFrame(loop);
   }
 
-  // 入力：タップ/ドラッグで描画
+  function pushHistory(aliveCountMaybe) {
+    const count = (typeof aliveCountMaybe === "number") ? aliveCountMaybe : countAlive();
+    history.push(count);
+    if (history.length > HISTORY_MAX) history.shift();
+  }
+
+  function countAlive(){
+    let c = 0;
+    for (let i = 0; i < alive.length; i++) c += alive[i];
+    return c;
+  }
+
+  function drawSparkline() {
+    const W = spark.width, H = spark.height;
+    sctx.fillStyle = "#121a28";
+    sctx.fillRect(0,0,W,H);
+
+    const len = history.length;
+    if (len < 2) return;
+    let max = 1;
+    for (let i=0;i<len;i++) if (history[i] > max) max = history[i];
+
+    sctx.strokeStyle = "rgba(255,255,255,.65)";
+    sctx.lineWidth = 1;
+    sctx.beginPath();
+    for (let i=0;i<len;i++){
+      const x = (i/(len-1))*(W-2)+1;
+      const y = H-1 - (history[i]/max)*(H-2);
+      if (i===0) sctx.moveTo(x,y); else sctx.lineTo(x,y);
+    }
+    sctx.stroke();
+
+    sctx.fillStyle = "rgba(90,180,255,.95)";
+    const x = W-2;
+    const y = H-1 - (history[len-1]/max)*(H-2);
+    sctx.fillRect(x-2, y-2, 4, 4);
+  }
+
+  function snapshot() {
+    return {
+      cols, rows, cellSize,
+      gen, lastBirths, lastDeaths,
+      ruleText: ruleTextEl.value,
+      ruleName,
+      alive: Array.from(alive),
+      age: Array.from(age),
+      history: history.slice(-HISTORY_MAX),
+    };
+  }
+
+  function restore(snap) {
+    cellSize = snap.cellSize;
+    cellSizeEl.value = String(cellSize);
+    cols = snap.cols; rows = snap.rows;
+
+    alive = new Uint8Array(snap.alive);
+    age = new Uint16Array(snap.age);
+    alive2 = new Uint8Array(alive.length);
+    age2 = new Uint16Array(age.length);
+
+    gen = snap.gen;
+    lastBirths = snap.lastBirths;
+    lastDeaths = snap.lastDeaths;
+
+    history.length = 0;
+    for (const v of (snap.history || [])) history.push(v);
+
+    ruleTextEl.value = snap.ruleText || "B3/S23";
+    ruleName = snap.ruleName || ruleTextEl.value;
+    applyRuleFromText(false);
+
+    draw(true);
+  }
+
+  function pushUndo() {
+    undoStack.push(snapshot());
+    if (undoStack.length > UNDO_MAX) undoStack.shift();
+  }
+
+  function undo() {
+    if (undoStack.length === 0) return;
+    const s = undoStack.pop();
+    restore(s);
+  }
+
+  function parseRule(text) {
+    const t = String(text || "").toUpperCase().replace(/\s+/g, "");
+    const m = t.match(/^B([0-8]*)\/S([0-8]*)$/);
+    if (!m) return null;
+
+    const birth = new Array(9).fill(false);
+    const survive = new Array(9).fill(false);
+
+    for (const ch of m[1]) birth[+ch] = true;
+    for (const ch of m[2]) survive[+ch] = true;
+
+    return { birth, survive, text: t };
+  }
+
+  function applyRuleFromText(pushUndoFlag=true) {
+    const r = parseRule(ruleTextEl.value);
+    if (!r) {
+      alert("ルールの書き方が違います。例: B3/S23");
+      ruleTextEl.value = rule.text;
+      return;
+    }
+    if (pushUndoFlag) pushUndo();
+    rule = r;
+    if (!ruleName || ruleName === "Life") ruleName = r.text;
+    draw(true);
+  }
+
+  function transformPoints(points, rotDeg, flip) {
+    let pts = points.map(([x,y]) => [x,y]);
+
+    if (flip === "x") pts = pts.map(([x,y]) => [-x, y]);
+    if (flip === "y") pts = pts.map(([x,y]) => [x, -y]);
+
+    const rot = ((+rotDeg % 360) + 360) % 360;
+    if (rot === 90) pts = pts.map(([x,y]) => [y, -x]);
+    else if (rot === 180) pts = pts.map(([x,y]) => [-x, -y]);
+    else if (rot === 270) pts = pts.map(([x,y]) => [-y, x]);
+
+    let minX = Infinity, minY = Infinity;
+    for (const [x,y] of pts){ if (x<minX) minX=x; if (y<minY) minY=y; }
+    if (minX !== 0 || minY !== 0) pts = pts.map(([x,y]) => [x - minX, y - minY]);
+
+    return pts;
+  }
+
+  function stampAt(cx, cy) {
+    const key = patternEl.value;
+    const base = PATTERNS[key] || [];
+    if (base.length === 0) return;
+
+    const pts = transformPoints(base, rotEl.value, flipEl.value);
+    pushUndo();
+
+    for (const [dx, dy] of pts) {
+      const x = cx + dx;
+      const y = cy + dy;
+      if (x < 0 || y < 0 || x >= cols || y >= rows) continue;
+      const i = idx(x, y);
+      alive[i] = 1;
+      age[i] = Math.max(1, age[i]);
+    }
+  }
+
   let drawing = false;
-  let drawValue = 1; // 1=生, 0=死
+  let drawValue = 1;
 
   function posToCell(clientX, clientY) {
     const r = canvas.getBoundingClientRect();
@@ -335,60 +647,169 @@
     return { x, y };
   }
 
-  function paintAt(clientX, clientY) {
-    const { x, y } = posToCell(clientX, clientY);
+  function applyPaint(x, y) {
     if (x < 0 || y < 0 || x >= cols || y >= rows) return;
     const i = idx(x, y);
-    alive[i] = drawValue;
-    age[i] = drawValue ? Math.max(1, age[i]) : 0;
+
+    const mode = modeEl.value;
+
+    if (mode === "stamp") {
+      stampAt(x, y);
+      return;
+    }
+
+    if (mode === "toggle") {
+      alive[i] = alive[i] ? 0 : 1;
+      age[i] = alive[i] ? 1 : 0;
+      return;
+    }
+
+    if (mode === "draw") {
+      alive[i] = 1;
+      age[i] = Math.max(1, age[i]);
+      return;
+    }
+
+    if (mode === "erase") {
+      alive[i] = 0;
+      age[i] = 0;
+      return;
+    }
+  }
+
+  function beginStroke(x, y) {
+    pushUndo();
+    applyPaint(x, y);
+
+    if (modeEl.value === "toggle") {
+      const i = idx(clamp(x,0,cols-1), clamp(y,0,rows-1));
+      drawValue = alive[i] ? 0 : 1;
+    }
+  }
+
+  function dragStroke(x, y) {
+    const mode = modeEl.value;
+    if (mode === "stamp") return;
+
+    if (x < 0 || y < 0 || x >= cols || y >= rows) return;
+    const i = idx(x, y);
+
+    if (mode === "toggle") {
+      alive[i] = drawValue;
+      age[i] = drawValue ? Math.max(1, age[i]) : 0;
+    } else {
+      applyPaint(x, y);
+    }
   }
 
   canvas.addEventListener("pointerdown", (e) => {
-    // 2本指は操作が競合しやすいので無視（誤動作対策）
     if (e.pointerType === "touch" && e.isPrimary === false) return;
-
     drawing = true;
     canvas.setPointerCapture(e.pointerId);
-
-    // そのセルが生なら消す、死なら生やす（直感操作）
     const { x, y } = posToCell(e.clientX, e.clientY);
-    if (x >= 0 && y >= 0 && x < cols && y < rows) {
-      const i = idx(x, y);
-      drawValue = alive[i] ? 0 : 1;
-      alive[i] = drawValue;
-      age[i] = drawValue ? 1 : 0;
-    }
+    beginStroke(x, y);
     draw(true);
   });
 
   canvas.addEventListener("pointermove", (e) => {
     if (!drawing) return;
-    paintAt(e.clientX, e.clientY);
+    const { x, y } = posToCell(e.clientX, e.clientY);
+    dragStroke(x, y);
     draw(true);
   });
 
   canvas.addEventListener("pointerup", () => { drawing = false; });
   canvas.addEventListener("pointercancel", () => { drawing = false; });
 
-  // UI
+  const STORAGE_KEY = "lifegame_plus_state_v1";
+
+  function saveState() {
+    pushUndo();
+    const s = snapshot();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  }
+
+  function loadState() {
+    const t = localStorage.getItem(STORAGE_KEY);
+    if (!t) { alert("Saveがありません"); return; }
+    pushUndo();
+    const s = JSON.parse(t);
+    restore(s);
+  }
+
+  function exportState() {
+    const s = snapshot();
+    const blob = new Blob([JSON.stringify(s)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const date = new Date();
+    const pad2 = (n)=> String(n).padStart(2,"0");
+    a.download = `lifegame_${date.getFullYear()}${pad2(date.getMonth()+1)}${pad2(date.getDate())}_${pad2(date.getHours())}${pad2(date.getMinutes())}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importStateFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const s = JSON.parse(String(reader.result || ""));
+        pushUndo();
+        restore(s);
+      }catch(err){
+        alert("Importに失敗しました（JSONが壊れているかもしれません）");
+      }
+    };
+    reader.readAsText(file);
+  }
+
   playBtn.addEventListener("click", () => setRunning(!running));
   stepBtn.addEventListener("click", () => { step(); draw(true); });
-  randomBtn.addEventListener("click", () => { seedRandom(0.18); draw(true); });
-  clearBtn.addEventListener("click", () => { clearAll(); draw(true); });
+  randomBtn.addEventListener("click", () => { pushUndo(); seedRandom((+densityEl.value)/100); draw(true); });
+  clearBtn.addEventListener("click", () => { pushUndo(); clearAll(); draw(true); });
+  undoBtn.addEventListener("click", () => { undo(); });
 
   cellSizeEl.addEventListener("input", () => {
     cellSize = +cellSizeEl.value;
     resize();
   });
 
-  speedEl.addEventListener("input", () => {
-    acc = 0; // 速度変更時の“詰まり”をリセット
-  });
+  speedEl.addEventListener("input", () => { acc = 0; });
 
   colorModeEl.addEventListener("change", () => draw(true));
   wrapEdgesEl.addEventListener("change", () => draw(true));
+  trailEl.addEventListener("input", () => draw(true));
+
+  rulePresetEl.addEventListener("change", () => { ruleTextEl.value = rulePresetEl.value; });
+
+  applyRuleBtn.addEventListener("click", () => {
+    const preset = rulePresetEl.value;
+    const cleaned = ruleTextEl.value.toUpperCase().replace(/\s+/g,"");
+    if (cleaned === preset) ruleName = rulePresetEl.options[rulePresetEl.selectedIndex].textContent || preset;
+    else ruleName = cleaned;
+    applyRuleFromText(true);
+  });
+
+  saveBtn.addEventListener("click", () => { saveState(); alert("Saveしました"); });
+  loadBtn.addEventListener("click", () => { loadState(); });
+  exportBtn.addEventListener("click", () => { exportState(); });
+  importBtn.addEventListener("click", () => { importFile.click(); });
+  importFile.addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    importStateFile(f);
+    importFile.value = "";
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === " "){ e.preventDefault(); setRunning(!running); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){ e.preventDefault(); undo(); }
+  });
 
   window.addEventListener("resize", resize);
+
+  ruleTextEl.value = rule.text;
+  applyRuleFromText(false);
   resize();
 })();
 </script>
