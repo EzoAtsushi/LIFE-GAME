@@ -19,6 +19,7 @@
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
     #wrap{height:100%;display:grid;grid-template-rows:auto 1fr}
+
     header{
       padding:10px 10px calc(10px + env(safe-area-inset-top));
       position:sticky;top:0;z-index:10;
@@ -26,8 +27,10 @@
       background:linear-gradient(to bottom, rgba(11,15,24,.92), rgba(11,15,24,.55));
       border-bottom:1px solid var(--line);
     }
+
     .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .row + .row{margin-top:8px}
+
     button,select,input[type="range"],input[type="text"]{
       border:1px solid var(--line);
       background:var(--btn);
@@ -38,12 +41,18 @@
       line-height:1;
       height:36px;
     }
-    input[type="text"]{width:120px}
-    input[type="range"]{padding:0;width:160px}
     button:active{background:var(--btn2)}
     button.primary{background:var(--accent)}
     button.good{background:var(--good)}
     button.warn{background:var(--warn)}
+
+    input[type="text"]{width:120px}
+    input[type="range"]{padding:0;width:160px}
+
+    /* ▼プルダウンの選択肢が見えない対策（白背景に白文字になりがち） */
+    select{ color: var(--txt); }
+    option, optgroup{ color:#111; background:#fff; }
+
     .pill{
       padding:8px 10px;
       border:1px solid var(--line);
@@ -55,6 +64,7 @@
       height:36px;
       white-space:nowrap;
     }
+
     .kv{display:inline-flex;gap:8px;align-items:center}
     .kv label{font-size:12px;color:var(--muted)}
     .hint{display:block;margin-top:8px;padding:8px 10px;color:rgba(255,255,255,.62);font-size:12px;border-left:2px solid rgba(255,255,255,.16)}
@@ -64,12 +74,26 @@
     summary{cursor:pointer;color:var(--muted);font-size:13px}
     .danger{color:rgba(255,120,120,.92)}
     .tiny{font-size:11px;color:rgba(255,255,255,.62)}
+
+    /* ▼メニュー最少化 */
+    header.collapsed #menuPanel{ display:none; }
+    header.collapsed #stats,
+    header.collapsed #spark{ display:none; }
+    header.collapsed{ padding-bottom:10px; }
+    header.collapsed .row + .row{ margin-top:0; }
+
+    /* スマホのときはボタン少し詰める */
+    @media (max-width: 520px){
+      button,select,input[type="range"],input[type="text"]{ padding:9px 10px; }
+      input[type="range"]{ width:130px; }
+    }
   </style>
 </head>
 <body>
 <div id="wrap">
-  <header>
-    <div class="row">
+  <header id="topHeader">
+    <div class="row" id="topRow">
+      <button id="toggleMenu">Hide</button>
       <button id="play" class="primary">Play</button>
       <button id="step">Step</button>
       <button id="random" class="good">Random</button>
@@ -80,128 +104,130 @@
       <canvas id="spark" width="140" height="36" aria-label="alive history"></canvas>
     </div>
 
-    <div class="row">
-      <span class="kv">
-        <label for="cellSize">Cell</label>
-        <input id="cellSize" type="range" min="4" max="26" value="10">
-      </span>
+    <div id="menuPanel">
+      <div class="row">
+        <span class="kv">
+          <label for="cellSize">Cell</label>
+          <input id="cellSize" type="range" min="4" max="26" value="10">
+        </span>
 
-      <span class="kv">
-        <label for="speed">Speed</label>
-        <input id="speed" type="range" min="1" max="60" value="20">
-      </span>
+        <span class="kv">
+          <label for="speed">Speed</label>
+          <input id="speed" type="range" min="1" max="60" value="20">
+        </span>
 
-      <span class="kv">
-        <label for="density">Rnd</label>
-        <input id="density" type="range" min="1" max="50" value="18">
-      </span>
+        <span class="kv">
+          <label for="density">Rnd</label>
+          <input id="density" type="range" min="1" max="50" value="18">
+        </span>
 
-      <span class="kv">
-        <label for="colorMode">Color</label>
-        <select id="colorMode">
-          <option value="age">Age</option>
-          <option value="neon">Neon</option>
-          <option value="rainbow">Rainbow</option>
-        </select>
-      </span>
+        <span class="kv">
+          <label for="colorMode">Color</label>
+          <select id="colorMode">
+            <option value="age">Age</option>
+            <option value="neon">Neon</option>
+            <option value="rainbow">Rainbow</option>
+          </select>
+        </span>
 
-      <span class="kv">
-        <label for="wrapEdges">Wrap</label>
-        <select id="wrapEdges">
-          <option value="on">ON</option>
-          <option value="off">OFF</option>
-        </select>
-      </span>
+        <span class="kv">
+          <label for="wrapEdges">Wrap</label>
+          <select id="wrapEdges">
+            <option value="on">ON</option>
+            <option value="off">OFF</option>
+          </select>
+        </span>
+      </div>
+
+      <details id="more">
+        <summary>もっと面白く（スタンプ・ルール・保存）</summary>
+
+        <div class="row" style="margin-top:10px;">
+          <span class="kv">
+            <label for="mode">Mode</label>
+            <select id="mode">
+              <option value="toggle">Toggle</option>
+              <option value="draw">Draw</option>
+              <option value="erase">Erase</option>
+              <option value="stamp">Stamp</option>
+            </select>
+          </span>
+
+          <span class="kv">
+            <label for="pattern">Pattern</label>
+            <select id="pattern">
+              <option value="none">None</option>
+              <option value="glider">Glider</option>
+              <option value="lwss">LWSS</option>
+              <option value="rpent">R-pentomino</option>
+              <option value="pulsar">Pulsar</option>
+              <option value="acorn">Acorn</option>
+              <option value="gun">Gosper gun</option>
+            </select>
+          </span>
+
+          <span class="kv">
+            <label for="rot">Rot</label>
+            <select id="rot">
+              <option value="0">0°</option>
+              <option value="90">90°</option>
+              <option value="180">180°</option>
+              <option value="270">270°</option>
+            </select>
+          </span>
+
+          <span class="kv">
+            <label for="flip">Flip</label>
+            <select id="flip">
+              <option value="none">None</option>
+              <option value="x">X</option>
+              <option value="y">Y</option>
+            </select>
+          </span>
+
+          <span class="kv">
+            <label for="trail">Trail</label>
+            <input id="trail" type="range" min="0" max="60" value="18">
+          </span>
+        </div>
+
+        <div class="row" style="margin-top:8px;">
+          <span class="kv">
+            <label for="rulePreset">Rule</label>
+            <select id="rulePreset">
+              <option value="B3/S23">Life (B3/S23)</option>
+              <option value="B36/S23">HighLife (B36/S23)</option>
+              <option value="B2/S">Seeds (B2/S)</option>
+              <option value="B3/S12345">Maze (B3/S12345)</option>
+              <option value="B3678/S34678">Day&Night (B3678/S34678)</option>
+            </select>
+          </span>
+
+          <span class="kv">
+            <label for="ruleText">Custom</label>
+            <input id="ruleText" type="text" value="B3/S23" inputmode="latin" aria-label="custom rule">
+          </span>
+
+          <button id="applyRule">Apply</button>
+
+          <button id="saveState">Save</button>
+          <button id="loadState">Load</button>
+          <button id="exportState">Export</button>
+          <button id="importState">Import</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none;">
+        </div>
+
+        <div class="hint">
+          ルールは「B（誕生）/S（生存）」です。例：B3/S23 は「周りに3個あると誕生、2か3個なら生存」。
+          <span class="tiny">（B3/S23が定番のライフゲーム）</span>
+          <br>Mode=Stamp のとき、クリックした場所に Pattern を配置します。Undo は手動操作（描画/Random/Clear/Import/Load）だけ戻せます。
+        </div>
+
+        <div class="hint danger">
+          注意：データはブラウザ内保存です。ブラウザのデータ削除をすると消えます。大事なら Export でバックアップしてください（JSONというデータ用ファイル）。
+        </div>
+      </details>
     </div>
-
-    <details id="more">
-      <summary>もっと面白く（スタンプ・ルール・保存）</summary>
-
-      <div class="row" style="margin-top:10px;">
-        <span class="kv">
-          <label for="mode">Mode</label>
-          <select id="mode">
-            <option value="toggle">Toggle</option>
-            <option value="draw">Draw</option>
-            <option value="erase">Erase</option>
-            <option value="stamp">Stamp</option>
-          </select>
-        </span>
-
-        <span class="kv">
-          <label for="pattern">Pattern</label>
-          <select id="pattern">
-            <option value="none">None</option>
-            <option value="glider">Glider</option>
-            <option value="lwss">LWSS</option>
-            <option value="rpent">R-pentomino</option>
-            <option value="pulsar">Pulsar</option>
-            <option value="acorn">Acorn</option>
-            <option value="gun">Gosper gun</option>
-          </select>
-        </span>
-
-        <span class="kv">
-          <label for="rot">Rot</label>
-          <select id="rot">
-            <option value="0">0°</option>
-            <option value="90">90°</option>
-            <option value="180">180°</option>
-            <option value="270">270°</option>
-          </select>
-        </span>
-
-        <span class="kv">
-          <label for="flip">Flip</label>
-          <select id="flip">
-            <option value="none">None</option>
-            <option value="x">X</option>
-            <option value="y">Y</option>
-          </select>
-        </span>
-
-        <span class="kv">
-          <label for="trail">Trail</label>
-          <input id="trail" type="range" min="0" max="60" value="18">
-        </span>
-      </div>
-
-      <div class="row" style="margin-top:8px;">
-        <span class="kv">
-          <label for="rulePreset">Rule</label>
-          <select id="rulePreset">
-            <option value="B3/S23">Life (B3/S23)</option>
-            <option value="B36/S23">HighLife (B36/S23)</option>
-            <option value="B2/S">Seeds (B2/S)</option>
-            <option value="B3/S12345">Maze (B3/S12345)</option>
-            <option value="B3678/S34678">Day&Night (B3678/S34678)</option>
-          </select>
-        </span>
-
-        <span class="kv">
-          <label for="ruleText">Custom</label>
-          <input id="ruleText" type="text" value="B3/S23" inputmode="latin" aria-label="custom rule">
-        </span>
-
-        <button id="applyRule">Apply</button>
-
-        <button id="saveState">Save</button>
-        <button id="loadState">Load</button>
-        <button id="exportState">Export</button>
-        <button id="importState">Import</button>
-        <input id="importFile" type="file" accept="application/json" style="display:none;">
-      </div>
-
-      <div class="hint">
-        ルールは「B（誕生）/S（生存）」です。例：B3/S23 は「周りに3個あると誕生、2か3個なら生存」。
-        <span class="tiny">（B3/S23が定番のライフゲーム）</span>
-        <br>Mode=Stamp のとき、クリックした場所に Pattern を配置します。Undo は手動操作（描画/Random/Clear/Import/Load）だけ戻せます。
-      </div>
-
-      <div class="hint danger">
-        注意：データはブラウザ内保存です。ブラウザのデータ削除をすると消えます。大事なら Export でバックアップしてください（JSONというデータ用ファイル）。
-      </div>
-    </details>
   </header>
 
   <canvas id="canvas"></canvas>
@@ -209,6 +235,9 @@
 
 <script>
 (() => {
+  const headerEl = document.getElementById("topHeader");
+  const toggleMenuBtn = document.getElementById("toggleMenu");
+
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d", { alpha: false });
 
@@ -244,7 +273,28 @@
   const importBtn = document.getElementById("importState");
   const importFile = document.getElementById("importFile");
 
-  // 状態
+  // ====== メニュー最少化 ======
+  const MENU_KEY = "lifegame_menu_collapsed_v1";
+  function setMenuCollapsed(collapsed){
+    headerEl.classList.toggle("collapsed", collapsed);
+    toggleMenuBtn.textContent = collapsed ? "Menu" : "Hide";
+    try { localStorage.setItem(MENU_KEY, collapsed ? "1" : "0"); } catch {}
+  }
+  function initMenu(){
+    let v = null;
+    try { v = localStorage.getItem(MENU_KEY); } catch {}
+    if (v === "1") setMenuCollapsed(true);
+    else if (v === "0") setMenuCollapsed(false);
+    else {
+      // 初回：スマホ幅なら最初から畳む
+      setMenuCollapsed(window.innerWidth <= 520);
+    }
+  }
+  toggleMenuBtn.addEventListener("click", () => {
+    setMenuCollapsed(!headerEl.classList.contains("collapsed"));
+  });
+
+  // ====== 状態 ======
   let cellSize = +cellSizeEl.value;
   let w = 0, h = 0, cols = 0, rows = 0;
   let gen = 0;
@@ -764,6 +814,7 @@
     reader.readAsText(file);
   }
 
+  // UI
   playBtn.addEventListener("click", () => setRunning(!running));
   stepBtn.addEventListener("click", () => { step(); draw(true); });
   randomBtn.addEventListener("click", () => { pushUndo(); seedRandom((+densityEl.value)/100); draw(true); });
@@ -801,6 +852,7 @@
     importFile.value = "";
   });
 
+  // PC: SpaceでPlay/Pause, Ctrl+ZでUndo
   window.addEventListener("keydown", (e) => {
     if (e.key === " "){ e.preventDefault(); setRunning(!running); }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){ e.preventDefault(); undo(); }
@@ -808,6 +860,8 @@
 
   window.addEventListener("resize", resize);
 
+  // 初期化
+  initMenu();
   ruleTextEl.value = rule.text;
   applyRuleFromText(false);
   resize();
