@@ -6,28 +6,31 @@
   <title>Colorful LifeGame+</title>
   <style>
     :root{
-      --bg:#0b0f18;
-      --line:rgba(255,255,255,.12);
-      --txt:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.70);
-      --btn:rgba(255,255,255,.10);
-      --btn2:rgba(255,255,255,.18);
-      --accent:rgba(90,180,255,.18);
-      --good:rgba(110,255,180,.14);
-      --warn:rgba(255,190,90,.14);
+      /* 白基調 */
+      --bg:#f7f8fb;
+      --panel: rgba(255,255,255,.82);
+      --line: rgba(0,0,0,.10);
+      --txt: rgba(0,0,0,.88);
+      --muted: rgba(0,0,0,.55);
+      --btn: rgba(0,0,0,.04);
+      --btn2: rgba(0,0,0,.08);
+      --accent: rgba(30,120,255,.14);
+      --good: rgba(0,160,80,.12);
+      --warn: rgba(255,150,0,.14);
+      --shadow: 0 8px 24px rgba(0,0,0,.08);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--txt);
+      font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}
     #wrap{height:100%;display:grid;grid-template-rows:auto 1fr}
 
     header{
       padding:10px 10px calc(10px + env(safe-area-inset-top));
       position:sticky;top:0;z-index:10;
       backdrop-filter: blur(10px);
-      background:linear-gradient(to bottom, rgba(11,15,24,.92), rgba(11,15,24,.55));
+      background:linear-gradient(to bottom, rgba(255,255,255,.90), rgba(255,255,255,.70));
       border-bottom:1px solid var(--line);
     }
-
     .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .row + .row{margin-top:8px}
 
@@ -36,10 +39,11 @@
       background:var(--btn);
       color:var(--txt);
       border-radius:10px;
-      padding:10px 12px;
+      padding:9px 12px;
       font-size:14px;
-      line-height:1;
-      height:36px;
+      line-height:1.25;
+      height:40px;
+      box-shadow: 0 1px 0 rgba(255,255,255,.9) inset;
     }
     button:active{background:var(--btn2)}
     button.primary{background:var(--accent)}
@@ -49,7 +53,7 @@
     input[type="text"]{width:120px}
     input[type="range"]{padding:0;width:160px}
 
-    /* ▼プルダウンの選択肢が見えない対策（白背景に白文字になりがち） */
+    /* プルダウンの選択肢が見えない対策 */
     select{ color: var(--txt); }
     option, optgroup{ color:#111; background:#fff; }
 
@@ -57,32 +61,30 @@
       padding:8px 10px;
       border:1px solid var(--line);
       border-radius:999px;
-      background:rgba(255,255,255,.06);
+      background:rgba(0,0,0,.03);
       color:var(--muted);
-      font-size:12px;
+      font-size:12px;line-height:1.25;
       display:inline-flex;gap:8px;align-items:center;
-      height:36px;
+      height:40px;
       white-space:nowrap;
     }
 
     .kv{display:inline-flex;gap:8px;align-items:center}
     .kv label{font-size:12px;color:var(--muted)}
-    .hint{display:block;margin-top:8px;padding:8px 10px;color:rgba(255,255,255,.62);font-size:12px;border-left:2px solid rgba(255,255,255,.16)}
-    #canvas{width:100%;height:100%;display:block;touch-action:none}
-    #spark{width:140px;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
-    details{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.05)}
+    .hint{display:block;margin-top:8px;padding:8px 10px;color:rgba(0,0,0,.60);font-size:12px;border-left:2px solid rgba(0,0,0,.12)}
+    #canvas{width:100%;height:100%;display:block;touch-action:none;background:#fff}
+    #spark{width:140px;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.03)}
+    details{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.02)}
     summary{cursor:pointer;color:var(--muted);font-size:13px}
-    .danger{color:rgba(255,120,120,.92)}
-    .tiny{font-size:11px;color:rgba(255,255,255,.62)}
+    .danger{color:rgba(190,60,60,.92)}
+    .tiny{font-size:11px;color:rgba(0,0,0,.55)}
 
-    /* ▼メニュー最少化 */
+    /* メニュー最少化（手動） */
     header.collapsed #menuPanel{ display:none; }
     header.collapsed #stats,
     header.collapsed #spark{ display:none; }
-    header.collapsed{ padding-bottom:10px; }
-    header.collapsed .row + .row{ margin-top:0; }
 
-    /* スマホのときはボタン少し詰める */
+    /* スマホのときは少し詰める */
     @media (max-width: 520px){
       button,select,input[type="range"],input[type="text"]{ padding:9px 10px; }
       input[type="range"]{ width:130px; }
@@ -93,7 +95,7 @@
 <div id="wrap">
   <header id="topHeader">
     <div class="row" id="topRow">
-      <button id="toggleMenu">Hide</button>
+      <button id="toggleMenu">Compact</button>
       <button id="play" class="primary">Play</button>
       <button id="step">Step</button>
       <button id="random" class="good">Random</button>
@@ -220,7 +222,7 @@
         <div class="hint">
           ルールは「B（誕生）/S（生存）」です。例：B3/S23 は「周りに3個あると誕生、2か3個なら生存」。
           <span class="tiny">（B3/S23が定番のライフゲーム）</span>
-          <br>Mode=Stamp のとき、クリックした場所に Pattern を配置します。Undo は手動操作（描画/Random/Clear/Import/Load）だけ戻せます。
+          <br>メニューは勝手に消えません。画面を広くしたいときは Compact を押して最少化してください。
         </div>
 
         <div class="hint danger">
@@ -235,6 +237,9 @@
 
 <script>
 (() => {
+  const BG = "#ffffff";               // キャンバス地色（白）
+  const BG_FADE_RGB = "255,255,255";  // Trail用
+
   const headerEl = document.getElementById("topHeader");
   const toggleMenuBtn = document.getElementById("toggleMenu");
 
@@ -273,20 +278,20 @@
   const importBtn = document.getElementById("importState");
   const importFile = document.getElementById("importFile");
 
-  // ====== メニュー最少化 ======
-  const MENU_KEY = "lifegame_menu_collapsed_v1";
+  // ====== メニュー（手動の折りたたみ） ======
+  const MENU_COLLAPSE_KEY = "lifegame_menu_compact_v1";
   function setMenuCollapsed(collapsed){
     headerEl.classList.toggle("collapsed", collapsed);
-    toggleMenuBtn.textContent = collapsed ? "Menu" : "Hide";
-    try { localStorage.setItem(MENU_KEY, collapsed ? "1" : "0"); } catch {}
+    toggleMenuBtn.textContent = collapsed ? "Menu" : "Compact";
+    try { localStorage.setItem(MENU_COLLAPSE_KEY, collapsed ? "1" : "0"); } catch {}
   }
-  function initMenu(){
+  function initMenuCollapsed(){
     let v = null;
-    try { v = localStorage.getItem(MENU_KEY); } catch {}
+    try { v = localStorage.getItem(MENU_COLLAPSE_KEY); } catch {}
     if (v === "1") setMenuCollapsed(true);
     else if (v === "0") setMenuCollapsed(false);
     else {
-      // 初回：スマホ幅なら最初から畳む
+      // 初回：スマホ幅なら最初からコンパクト
       setMenuCollapsed(window.innerWidth <= 520);
     }
   }
@@ -466,27 +471,27 @@
 
     if (mode === "age") {
       const hue = (a * 8) % 360;
-      const light = Math.min(70, 28 + a * 0.8);
+      const light = Math.min(62, 30 + a * 0.65);
       return `hsl(${hue} 95% ${light}%)`;
     }
     if (mode === "neon") {
       const hue = (a * 10 + x * 2 + y * 1) % 360;
-      const light = 55 + Math.min(15, a * 0.15);
+      const light = 52 + Math.min(12, a * 0.12);
       return `hsl(${hue} 100% ${light}%)`;
     }
     const hue = (x * 6 + y * 3) % 360;
-    const light = Math.min(70, 35 + a * 0.9);
+    const light = Math.min(62, 34 + a * 0.75);
     return `hsl(${hue} 95% ${light}%)`;
   }
 
   function draw(forceFull = false) {
     const trail = +trailEl.value;
     if (running && !forceFull && trail > 0) {
-      const alpha = clamp(trail / 200, 0.02, 0.35);
-      ctx.fillStyle = `rgba(11, 15, 24, ${alpha})`;
+      const alpha = clamp(trail / 240, 0.01, 0.22);
+      ctx.fillStyle = `rgba(${BG_FADE_RGB}, ${alpha})`;
       ctx.fillRect(0, 0, w, h);
     } else {
-      ctx.fillStyle = "#0b0f18";
+      ctx.fillStyle = BG;
       ctx.fillRect(0, 0, w, h);
     }
 
@@ -504,9 +509,15 @@
         ctx.fillStyle = colorFor(x, y, a, mode);
 
         const pad = Math.max(1, Math.floor(cellSize * 0.08));
+        // 白背景でも見やすいように、ほんの少し影を付ける
+        ctx.shadowColor = "rgba(0,0,0,.10)";
+        ctx.shadowBlur = 6;
+        ctx.shadowOffsetY = 1;
         ctx.fillRect(x * cellSize + pad, py + pad, cellSize - pad * 2, cellSize - pad * 2);
       }
     }
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
 
     statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths} / ${ruleName}`;
     drawSparkline();
@@ -553,7 +564,7 @@
 
   function drawSparkline() {
     const W = spark.width, H = spark.height;
-    sctx.fillStyle = "#121a28";
+    sctx.fillStyle = "#f0f2f7";
     sctx.fillRect(0,0,W,H);
 
     const len = history.length;
@@ -561,7 +572,7 @@
     let max = 1;
     for (let i=0;i<len;i++) if (history[i] > max) max = history[i];
 
-    sctx.strokeStyle = "rgba(255,255,255,.65)";
+    sctx.strokeStyle = "rgba(0,0,0,.55)";
     sctx.lineWidth = 1;
     sctx.beginPath();
     for (let i=0;i<len;i++){
@@ -571,7 +582,7 @@
     }
     sctx.stroke();
 
-    sctx.fillStyle = "rgba(90,180,255,.95)";
+    sctx.fillStyle = "rgba(30,120,255,.95)";
     const x = W-2;
     const y = H-1 - (history[len-1]/max)*(H-2);
     sctx.fillRect(x-2, y-2, 4, 4);
@@ -852,7 +863,6 @@
     importFile.value = "";
   });
 
-  // PC: SpaceでPlay/Pause, Ctrl+ZでUndo
   window.addEventListener("keydown", (e) => {
     if (e.key === " "){ e.preventDefault(); setRunning(!running); }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){ e.preventDefault(); undo(); }
@@ -861,7 +871,7 @@
   window.addEventListener("resize", resize);
 
   // 初期化
-  initMenu();
+  initMenuCollapsed();
   ruleTextEl.value = rule.text;
   applyRuleFromText(false);
   resize();
