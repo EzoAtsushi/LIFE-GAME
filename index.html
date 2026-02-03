@@ -3,20 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Colorful LifeGame+</title>
+  <title>Colorful LifeGame++</title>
   <style>
     :root{
-      /* 白基調 */
-      --bg:#f7f8fb;
-      --panel: rgba(255,255,255,.82);
-      --line: rgba(0,0,0,.10);
+      /* 白基調（モノクロUI） */
+      --bg:#f7f7f7;
+      --panel: rgba(255,255,255,.92);
+      --line: rgba(0,0,0,.12);
       --txt: rgba(0,0,0,.88);
       --muted: rgba(0,0,0,.55);
       --btn: rgba(0,0,0,.04);
       --btn2: rgba(0,0,0,.08);
-      --accent: rgba(30,120,255,.14);
-      --good: rgba(0,160,80,.12);
-      --warn: rgba(255,150,0,.14);
       --shadow: 0 8px 24px rgba(0,0,0,.08);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -28,13 +25,13 @@
       padding:10px 10px calc(10px + env(safe-area-inset-top));
       position:sticky;top:0;z-index:10;
       backdrop-filter: blur(10px);
-      background:linear-gradient(to bottom, rgba(255,255,255,.90), rgba(255,255,255,.70));
+      background:var(--panel);
       border-bottom:1px solid var(--line);
     }
     .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
     .row + .row{margin-top:8px}
 
-    button,select,input[type="range"],input[type="text"]{
+    button,select,input[type="range"]{
       border:1px solid var(--line);
       background:var(--btn);
       color:var(--txt);
@@ -46,11 +43,8 @@
       box-shadow: 0 1px 0 rgba(255,255,255,.9) inset;
     }
     button:active{background:var(--btn2)}
-    button.primary{background:var(--accent)}
-    button.good{background:var(--good)}
-    button.warn{background:var(--warn)}
+    button.primary{background:rgba(0,0,0,.06)}
 
-    input[type="text"]{width:120px}
     input[type="range"]{padding:0;width:160px}
 
     /* プルダウンの選択肢が見えない対策 */
@@ -71,13 +65,9 @@
 
     .kv{display:inline-flex;gap:8px;align-items:center}
     .kv label{font-size:12px;color:var(--muted)}
-    .hint{display:block;margin-top:8px;padding:8px 10px;color:rgba(0,0,0,.60);font-size:12px;border-left:2px solid rgba(0,0,0,.12)}
+
     #canvas{width:100%;height:100%;display:block;touch-action:none;background:#fff}
     #spark{width:140px;height:36px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.03)}
-    details{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.02)}
-    summary{cursor:pointer;color:var(--muted);font-size:13px}
-    .danger{color:rgba(190,60,60,.92)}
-    .tiny{font-size:11px;color:rgba(0,0,0,.55)}
 
     /* メニュー最少化（手動） */
     header.collapsed #menuPanel{ display:none; }
@@ -86,8 +76,9 @@
 
     /* スマホのときは少し詰める */
     @media (max-width: 520px){
-      button,select,input[type="range"],input[type="text"]{ padding:9px 10px; }
+      button,select,input[type="range"]{ padding:9px 10px; }
       input[type="range"]{ width:130px; }
+      #spark{ width:120px; }
     }
   </style>
 </head>
@@ -97,8 +88,8 @@
     <div class="row" id="topRow">
       <button id="toggleMenu">Compact</button>
       <button id="play" class="primary">Play</button>
-      <button id="random" class="good">Random</button>
-      <button id="clear" class="warn">Clear</button>
+      <button id="random">Random</button>
+      <button id="clear">Clear</button>
       <span class="pill" id="stats">Gen: 0 / Alive: 0</span>
       <canvas id="spark" width="140" height="36" aria-label="alive history"></canvas>
     </div>
@@ -123,12 +114,12 @@
         <span class="kv">
           <label for="colorMode">Color</label>
           <select id="colorMode">
+            <option value="mono">B/W</option>
             <option value="age">Age</option>
             <option value="neon">Neon</option>
             <option value="rainbow">Rainbow</option>
           </select>
         </span>
-
         <span class="kv">
           <label for="wrapEdges">Wrap</label>
           <select id="wrapEdges">
@@ -136,96 +127,16 @@
             <option value="off">OFF</option>
           </select>
         </span>
+
+        <span class="kv">
+          <label for="autoStop">Stop</label>
+          <select id="autoStop">
+            <option value="off">OFF</option>
+            <option value="still">Still</option>
+            <option value="blink2">Blink2</option>
+          </select>
+        </span>
       </div>
-
-      <details id="more">
-        <summary>もっと面白く（スタンプ・ルール・保存）</summary>
-
-        <div class="row" style="margin-top:10px;">
-          <span class="kv">
-            <label for="mode">Mode</label>
-            <select id="mode">
-              <option value="toggle">Toggle</option>
-              <option value="draw">Draw</option>
-              <option value="erase">Erase</option>
-              <option value="stamp">Stamp</option>
-            </select>
-          </span>
-
-          <span class="kv">
-            <label for="pattern">Pattern</label>
-            <select id="pattern">
-              <option value="none">None</option>
-              <option value="glider">Glider</option>
-              <option value="lwss">LWSS</option>
-              <option value="rpent">R-pentomino</option>
-              <option value="pulsar">Pulsar</option>
-              <option value="acorn">Acorn</option>
-              <option value="gun">Gosper gun</option>
-            </select>
-          </span>
-
-          <span class="kv">
-            <label for="rot">Rot</label>
-            <select id="rot">
-              <option value="0">0°</option>
-              <option value="90">90°</option>
-              <option value="180">180°</option>
-              <option value="270">270°</option>
-            </select>
-          </span>
-
-          <span class="kv">
-            <label for="flip">Flip</label>
-            <select id="flip">
-              <option value="none">None</option>
-              <option value="x">X</option>
-              <option value="y">Y</option>
-            </select>
-          </span>
-
-          <span class="kv">
-            <label for="trail">Trail</label>
-            <input id="trail" type="range" min="0" max="60" value="18">
-          </span>
-        </div>
-
-        <div class="row" style="margin-top:8px;">
-          <span class="kv">
-            <label for="rulePreset">Rule</label>
-            <select id="rulePreset">
-              <option value="B3/S23">Life (B3/S23)</option>
-              <option value="B36/S23">HighLife (B36/S23)</option>
-              <option value="B2/S">Seeds (B2/S)</option>
-              <option value="B3/S12345">Maze (B3/S12345)</option>
-              <option value="B3678/S34678">Day&Night (B3678/S34678)</option>
-            </select>
-          </span>
-
-          <span class="kv">
-            <label for="ruleText">Custom</label>
-            <input id="ruleText" type="text" value="B3/S23" inputmode="latin" aria-label="custom rule">
-          </span>
-
-          <button id="applyRule">Apply</button>
-
-          <button id="saveState">Save</button>
-          <button id="loadState">Load</button>
-          <button id="exportState">Export</button>
-          <button id="importState">Import</button>
-          <input id="importFile" type="file" accept="application/json" style="display:none;">
-        </div>
-
-        <div class="hint">
-          ルールは「B（誕生）/S（生存）」です。例：B3/S23 は「周りに3個あると誕生、2か3個なら生存」。
-          <span class="tiny">（B3/S23が定番のライフゲーム）</span>
-          <br>メニューは勝手に消えません。画面を広くしたいときは Compact を押して最少化してください。
-        </div>
-
-        <div class="hint danger">
-          注意：データはブラウザ内保存です。ブラウザのデータ削除をすると消えます。大事なら Export でバックアップしてください（JSONというデータ用ファイル）。
-        </div>
-      </details>
     </div>
   </header>
 
@@ -234,9 +145,9 @@
 
 <script>
 (() => {
-  const BG = "#ffffff";               // キャンバス地色（白）
-  const BG_FADE_RGB = "255,255,255";  // Trail用
+  const BG = "#ffffff";
 
+  // ====== DOM ======
   const headerEl = document.getElementById("topHeader");
   const toggleMenuBtn = document.getElementById("toggleMenu");
 
@@ -247,30 +158,27 @@
   const sctx = spark.getContext("2d", { alpha: false });
 
   const playBtn = document.getElementById("play");
-const randomBtn = document.getElementById("random");
+  const randomBtn = document.getElementById("random");
   const clearBtn = document.getElementById("clear");
-const cellSizeEl = document.getElementById("cellSize");
+
+  const cellSizeEl = document.getElementById("cellSize");
   const speedEl = document.getElementById("speed");
   const densityEl = document.getElementById("density");
   const statsEl = document.getElementById("stats");
   const colorModeEl = document.getElementById("colorMode");
   const wrapEdgesEl = document.getElementById("wrapEdges");
+  const autoStopEl = document.getElementById("autoStop");
 
-  const modeEl = document.getElementById("mode");
-  const patternEl = document.getElementById("pattern");
-  const rotEl = document.getElementById("rot");
-  const flipEl = document.getElementById("flip");
-  const trailEl = document.getElementById("trail");
-
-  const rulePresetEl = document.getElementById("rulePreset");
-  const ruleTextEl = document.getElementById("ruleText");
-  const applyRuleBtn = document.getElementById("applyRule");
-
-  const saveBtn = document.getElementById("saveState");
-  const loadBtn = document.getElementById("loadState");
-  const exportBtn = document.getElementById("exportState");
-  const importBtn = document.getElementById("importState");
-  const importFile = document.getElementById("importFile");
+  // ====== 簡易テスト（コンソールに出る） ======
+  function assert(cond, msg){
+    if(!cond) throw new Error("[SelfTest] " + msg);
+  }
+  assert(canvas && ctx, "canvas/context missing");
+  assert(playBtn && randomBtn && clearBtn, "basic buttons missing");
+  assert(cellSizeEl && speedEl && densityEl, "sliders missing");
+  assert(statsEl && spark && sctx, "stats/spark missing");
+  // ここが今回の原因になりやすい箇所
+  assert(colorModeEl, "#colorMode is missing (menu HTML broken?)");
 
   // ====== メニュー（手動の折りたたみ） ======
   const MENU_COLLAPSE_KEY = "lifegame_menu_compact_v1";
@@ -284,10 +192,7 @@ const cellSizeEl = document.getElementById("cellSize");
     try { v = localStorage.getItem(MENU_COLLAPSE_KEY); } catch {}
     if (v === "1") setMenuCollapsed(true);
     else if (v === "0") setMenuCollapsed(false);
-    else {
-      // 初回：スマホ幅なら最初からコンパクト
-      setMenuCollapsed(window.innerWidth <= 520);
-    }
+    else setMenuCollapsed(window.innerWidth <= 520);
   }
   toggleMenuBtn.addEventListener("click", () => {
     setMenuCollapsed(!headerEl.classList.contains("collapsed"));
@@ -304,6 +209,9 @@ const cellSizeEl = document.getElementById("cellSize");
   let age = null;
   let age2 = null;
 
+  let heat = null;   // セルが「最近いた」履歴（残像）
+  let heat2 = null;
+
   let dpr = 1;
   let lastT = 0;
   let acc = 0;
@@ -314,47 +222,66 @@ const cellSizeEl = document.getElementById("cellSize");
   const history = [];
   const HISTORY_MAX = 200;
 
-  const undoStack = [];
-  const UNDO_MAX = 20;
+  // ====== 履歴グラデーション（残像） ======
+  // 非B/Wのとき、「その座標にセルがいた履歴」を heat として保持して、時間で減衰させる
+  const HEAT_MAX = 255;
+  const HEAT_FADE_SEC = 1.2; // だいたいこの秒数で消える
 
-  let rule = parseRule("B3/S23");
-  let ruleName = "Life";
+  function clamp(v, lo, hi){
+    return v < lo ? lo : (v > hi ? hi : v);
+  }
 
-  const PATTERNS = {
-    none: [],
-    glider: [[1,0],[2,1],[0,2],[1,2],[2,2]],
-    lwss: [[1,0],[2,0],[3,0],[4,0],[0,1],[4,1],[4,2],[0,3],[3,3]],
-    rpent: [[1,0],[2,0],[0,1],[1,1],[1,2]],
-    acorn: [[1,0],[3,1],[0,2],[1,2],[4,2],[5,2],[6,2]],
-    pulsar: [
-      [2,0],[3,0],[4,0],[8,0],[9,0],[10,0],
-      [0,2],[5,2],[7,2],[12,2],
-      [0,3],[5,3],[7,3],[12,3],
-      [0,4],[5,4],[7,4],[12,4],
-      [2,5],[3,5],[4,5],[8,5],[9,5],[10,5],
-      [2,7],[3,7],[4,7],[8,7],[9,7],[10,7],
-      [0,8],[5,8],[7,8],[12,8],
-      [0,9],[5,9],[7,9],[12,9],
-      [0,10],[5,10],[7,10],[12,10],
-      [2,12],[3,12],[4,12],[8,12],[9,12],[10,12],
-    ],
-    gun: [
-      [24,0],
-      [22,1],[24,1],
-      [12,2],[13,2],[20,2],[21,2],[34,2],[35,2],
-      [11,3],[15,3],[20,3],[21,3],[34,3],[35,3],
-      [0,4],[1,4],[10,4],[16,4],[20,4],[21,4],
-      [0,5],[1,5],[10,5],[14,5],[16,5],[17,5],[22,5],[24,5],
-      [10,6],[16,6],[24,6],
-      [11,7],[15,7],
-      [12,8],[13,8]
-    ],
-  };
+  function getHeatDecay(){
+    const hz = +(speedEl ? speedEl.value : 20) || 20;
+    const d = Math.ceil(HEAT_MAX / (HEAT_FADE_SEC * hz));
+    return clamp(d, 1, 40);
+  }
+
+  // ====== STOP: Blink2（周期2）検出用 ======
+  let oscPrev1 = null; // t-1
+  let oscPrev2 = null; // t-2
+
+  function invalidateOsc(){
+    oscPrev1 = null;
+    oscPrev2 = null;
+  }
+
+  function checkBlink2(){
+    if (!oscPrev1 || oscPrev1.length !== alive.length) {
+      oscPrev1 = new Uint8Array(alive.length);
+      oscPrev2 = new Uint8Array(alive.length);
+      oscPrev1.set(alive);
+      oscPrev2.set(alive);
+      return false;
+    }
+
+    let same = true;
+    for (let i = 0; i < alive.length; i++) {
+      if (alive[i] !== oscPrev2[i]) { same = false; break; }
+    }
+
+    oscPrev2.set(oscPrev1);
+    oscPrev1.set(alive);
+
+    return same;
+  }
 
   function idx(x, y) { return y * cols + x; }
-  function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
 
-  function resize() {
+  function setCell(i, v){
+    const vv = v ? 1 : 0;
+    alive[i] = vv;
+
+    if (vv) {
+      age[i] = age[i] ? age[i] : 1;
+      heat[i] = HEAT_MAX;
+    } else {
+      // 手で消したら残像も即消す（直感優先）
+      heat[i] = 0;
+    }
+  }
+
+  function resize(preserve=true) {
     dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
     const rect = canvas.getBoundingClientRect();
     w = Math.floor(rect.width);
@@ -363,21 +290,60 @@ const cellSizeEl = document.getElementById("cellSize");
     canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    cols = Math.max(10, Math.floor(w / cellSize));
-    rows = Math.max(10, Math.floor(h / cellSize));
+    const newCols = Math.max(10, Math.floor(w / cellSize));
+    const newRows = Math.max(10, Math.floor(h / cellSize));
 
+    const canPreserve = preserve && alive && (cols > 0) && (rows > 0);
+
+    if (!canPreserve) {
+      cols = newCols; rows = newRows;
+      alive = new Uint8Array(cols * rows);
+      alive2 = new Uint8Array(cols * rows);
+      age = new Uint16Array(cols * rows);
+      age2 = new Uint16Array(cols * rows);
+      heat = new Uint8Array(cols * rows);
+      heat2 = new Uint8Array(cols * rows);
+
+      gen = 0;
+      lastBirths = 0;
+      lastDeaths = 0;
+      history.length = 0;
+
+      seedRandom((+densityEl.value) / 100);
+      draw(true);
+      return;
+    }
+
+    const oldAlive = alive;
+    const oldAge = age;
+    const oldHeat = heat;
+    const oldCols = cols;
+    const oldRows = rows;
+
+    cols = newCols; rows = newRows;
     alive = new Uint8Array(cols * rows);
     alive2 = new Uint8Array(cols * rows);
     age = new Uint16Array(cols * rows);
     age2 = new Uint16Array(cols * rows);
+    heat = new Uint8Array(cols * rows);
+    heat2 = new Uint8Array(cols * rows);
 
-    gen = 0;
-    lastBirths = 0;
-    lastDeaths = 0;
-    history.length = 0;
-    undoStack.length = 0;
+    const copyCols = Math.min(oldCols, cols);
+    const copyRows = Math.min(oldRows, rows);
 
-    seedRandom((+densityEl.value) / 100);
+    for (let y = 0; y < copyRows; y++) {
+      const srcBase = y * oldCols;
+      const dstBase = y * cols;
+      for (let x = 0; x < copyCols; x++) {
+        const s = srcBase + x;
+        const d = dstBase + x;
+        alive[d] = oldAlive[s];
+        age[d] = oldAge[s];
+        heat[d] = oldHeat[s];
+      }
+    }
+
+    while (history.length > HISTORY_MAX) history.shift();
     draw(true);
   }
 
@@ -386,19 +352,23 @@ const cellSizeEl = document.getElementById("cellSize");
       const v = Math.random() < density ? 1 : 0;
       alive[i] = v;
       age[i] = v ? (1 + (Math.random() * 6 | 0)) : 0;
+      heat[i] = v ? HEAT_MAX : 0;
     }
     gen = 0;
     lastBirths = 0;
     lastDeaths = 0;
+    invalidateOsc();
     pushHistory();
   }
 
   function clearAll() {
     alive.fill(0);
     age.fill(0);
+    heat.fill(0);
     gen = 0;
     lastBirths = 0;
     lastDeaths = 0;
+    invalidateOsc();
     pushHistory();
   }
 
@@ -421,99 +391,130 @@ const cellSizeEl = document.getElementById("cellSize");
     return n;
   }
 
+  // ルール固定（Life: B3/S23）
   function step() {
-    const wrap = (wrapEdgesEl.value === "on");
+    const wrap = (wrapEdgesEl && wrapEdgesEl.value === "on");
     let aliveCount = 0;
     let births = 0, deaths = 0;
+
+    const decay = getHeatDecay();
 
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const i = idx(x, y);
-        const a = alive[i];
+        const a0 = alive[i];
         const n = countNeighbors(x, y, wrap);
 
-        let next = 0;
-        if (a) next = rule.survive[n] ? 1 : 0;
-        else next = rule.birth[n] ? 1 : 0;
-
+        const next = a0 ? ((n === 2 || n === 3) ? 1 : 0) : ((n === 3) ? 1 : 0);
         alive2[i] = next;
 
         if (next) {
           aliveCount++;
-          age2[i] = a ? Math.min(65535, age[i] + 1) : 1;
-          if (!a) births++;
+          age2[i] = a0 ? Math.min(65535, age[i] + 1) : 1;
+          heat2[i] = HEAT_MAX;
+          if (!a0) births++;
         } else {
-          age2[i] = 0;
-          if (a) deaths++;
+          age2[i] = age[i];
+          const hv = heat[i];
+          heat2[i] = hv > decay ? (hv - decay) : 0;
+          if (a0) deaths++;
         }
       }
     }
 
     [alive, alive2] = [alive2, alive];
     [age, age2] = [age2, age];
+    [heat, heat2] = [heat2, heat];
 
     gen++;
     lastBirths = births;
     lastDeaths = deaths;
     pushHistory(aliveCount);
 
-    return aliveCount;
+    return { aliveCount, changed: births + deaths };
   }
 
-  function colorFor(x, y, a, mode) {
+  function colorSpec(x, y, a, mode) {
     if (!a) return null;
 
+    if (mode === "mono") return { type: "solid", color: "#111" };
+
+    let hue = 0, sat = 95, light = 50;
+
     if (mode === "age") {
-      const hue = (a * 8) % 360;
-      const light = Math.min(62, 30 + a * 0.65);
-      return `hsl(${hue} 95% ${light}%)`;
+      hue = (a * 8) % 360;
+      sat = 95;
+      light = 30 + a * 0.65;
+    } else if (mode === "neon") {
+      hue = (a * 10 + x * 2 + y * 1) % 360;
+      sat = 100;
+      light = 52 + Math.min(12, a * 0.12);
+    } else {
+      hue = (x * 6 + y * 3) % 360;
+      sat = 95;
+      light = 34 + a * 0.75;
     }
-    if (mode === "neon") {
-      const hue = (a * 10 + x * 2 + y * 1) % 360;
-      const light = 52 + Math.min(12, a * 0.12);
-      return `hsl(${hue} 100% ${light}%)`;
-    }
-    const hue = (x * 6 + y * 3) % 360;
-    const light = Math.min(62, 34 + a * 0.75);
-    return `hsl(${hue} 95% ${light}%)`;
+
+    light = clamp(light, 10, 90);
+    return { type: "hsl", hue, sat, light };
   }
 
-  function draw(forceFull = false) {
-    const trail = +trailEl.value;
-    if (running && !forceFull && trail > 0) {
-      const alpha = clamp(trail / 240, 0.01, 0.22);
-      ctx.fillStyle = `rgba(${BG_FADE_RGB}, ${alpha})`;
-      ctx.fillRect(0, 0, w, h);
-    } else {
-      ctx.fillStyle = BG;
-      ctx.fillRect(0, 0, w, h);
-    }
+  function alphaAt(i){
+    if (alive[i]) return 1;
+    const hv = heat[i];
+    if (!hv) return 0;
+    const t = hv / HEAT_MAX;
+    return clamp(Math.pow(t, 1.7) * 0.92, 0, 0.92);
+  }
 
-    const mode = colorModeEl.value;
+  // ====== 描画（Blockのみ） ======
+  function draw(forceFull = false) {
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, w, h);
+
+    const mode = (colorModeEl && colorModeEl.value) ? colorModeEl.value : "mono";
+    const mono = (mode === "mono");
     let aliveCount = 0;
 
+    if (mono) {
+      // B/W は残像なし
+      ctx.fillStyle = "#111";
+      for (let y = 0; y < rows; y++) {
+        const py = y * cellSize;
+        for (let x = 0; x < cols; x++) {
+          const i = idx(x, y);
+          if (!alive[i]) continue;
+          aliveCount++;
+          ctx.fillRect(x * cellSize, py, cellSize, cellSize);
+        }
+      }
+
+      statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths}`;
+      drawSparkline();
+      return;
+    }
+
+    // Color（残像あり）
+    const pad = Math.max(1, Math.floor(cellSize * 0.08));
+
     for (let y = 0; y < rows; y++) {
-      const py = y * cellSize;
+      const py = y * cellSize + pad;
       for (let x = 0; x < cols; x++) {
         const i = idx(x, y);
-        if (!alive[i]) continue;
-        aliveCount++;
+        const a = alphaAt(i);
+        if (a < 0.012) continue;
+        if (alive[i]) aliveCount++;
 
-        const a = age[i];
-        ctx.fillStyle = colorFor(x, y, a, mode);
+        const aVal = age[i] || 1;
+        const spec = colorSpec(x, y, aVal, mode);
+        if (!spec) continue;
 
-        const pad = Math.max(1, Math.floor(cellSize * 0.08));
-        // 白背景でも見やすいように、ほんの少し影を付ける
-        ctx.shadowColor = "rgba(0,0,0,.10)";
-        ctx.shadowBlur = 6;
-        ctx.shadowOffsetY = 1;
-        ctx.fillRect(x * cellSize + pad, py + pad, cellSize - pad * 2, cellSize - pad * 2);
+        ctx.fillStyle = `hsla(${spec.hue}, ${spec.sat}%, ${spec.light}%, ${a})`;
+        ctx.fillRect(x * cellSize + pad, py, cellSize - pad * 2, cellSize - pad * 2);
       }
     }
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
 
-    statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths} / ${ruleName}`;
+    statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths}`;
     drawSparkline();
   }
 
@@ -530,14 +531,31 @@ const cellSizeEl = document.getElementById("cellSize");
     lastT = t;
     acc += dt;
 
-    const hz = +speedEl.value;
+    const hz = +(speedEl ? speedEl.value : 20) || 20;
     const stepSec = 1 / hz;
 
     let n = 0;
     while (acc >= stepSec && n < 6) {
-      step();
+      const res = step();
       acc -= stepSec;
       n++;
+
+      const stopMode = autoStopEl ? autoStopEl.value : "off";
+
+      if (stopMode === "still") {
+        if (res.changed === 0) {
+          setRunning(false);
+          acc = 0;
+          break;
+        }
+      } else if (stopMode === "blink2") {
+        const isBlink2 = checkBlink2();
+        if (res.changed === 0 || isBlink2) {
+          setRunning(false);
+          acc = 0;
+          break;
+        }
+      }
     }
 
     draw(false);
@@ -558,11 +576,12 @@ const cellSizeEl = document.getElementById("cellSize");
 
   function drawSparkline() {
     const W = spark.width, H = spark.height;
-    sctx.fillStyle = "#f0f2f7";
+    sctx.fillStyle = "#f3f3f3";
     sctx.fillRect(0,0,W,H);
 
     const len = history.length;
     if (len < 2) return;
+
     let max = 1;
     for (let i=0;i<len;i++) if (history[i] > max) max = history[i];
 
@@ -576,122 +595,13 @@ const cellSizeEl = document.getElementById("cellSize");
     }
     sctx.stroke();
 
-    sctx.fillStyle = "rgba(30,120,255,.95)";
+    sctx.fillStyle = "rgba(0,0,0,.70)";
     const x = W-2;
     const y = H-1 - (history[len-1]/max)*(H-2);
     sctx.fillRect(x-2, y-2, 4, 4);
   }
 
-  function snapshot() {
-    return {
-      cols, rows, cellSize,
-      gen, lastBirths, lastDeaths,
-      ruleText: ruleTextEl.value,
-      ruleName,
-      alive: Array.from(alive),
-      age: Array.from(age),
-      history: history.slice(-HISTORY_MAX),
-    };
-  }
-
-  function restore(snap) {
-    cellSize = snap.cellSize;
-    cellSizeEl.value = String(cellSize);
-    cols = snap.cols; rows = snap.rows;
-
-    alive = new Uint8Array(snap.alive);
-    age = new Uint16Array(snap.age);
-    alive2 = new Uint8Array(alive.length);
-    age2 = new Uint16Array(age.length);
-
-    gen = snap.gen;
-    lastBirths = snap.lastBirths;
-    lastDeaths = snap.lastDeaths;
-
-    history.length = 0;
-    for (const v of (snap.history || [])) history.push(v);
-
-    ruleTextEl.value = snap.ruleText || "B3/S23";
-    ruleName = snap.ruleName || ruleTextEl.value;
-    applyRuleFromText(false);
-
-    draw(true);
-  }
-
-  function pushUndo() {
-    undoStack.push(snapshot());
-    if (undoStack.length > UNDO_MAX) undoStack.shift();
-  }
-
-  function undo() {
-    if (undoStack.length === 0) return;
-    const s = undoStack.pop();
-    restore(s);
-  }
-
-  function parseRule(text) {
-    const t = String(text || "").toUpperCase().replace(/\s+/g, "");
-    const m = t.match(/^B([0-8]*)\/S([0-8]*)$/);
-    if (!m) return null;
-
-    const birth = new Array(9).fill(false);
-    const survive = new Array(9).fill(false);
-
-    for (const ch of m[1]) birth[+ch] = true;
-    for (const ch of m[2]) survive[+ch] = true;
-
-    return { birth, survive, text: t };
-  }
-
-  function applyRuleFromText(pushUndoFlag=true) {
-    const r = parseRule(ruleTextEl.value);
-    if (!r) {
-      alert("ルールの書き方が違います。例: B3/S23");
-      ruleTextEl.value = rule.text;
-      return;
-    }
-    if (pushUndoFlag) pushUndo();
-    rule = r;
-    if (!ruleName || ruleName === "Life") ruleName = r.text;
-    draw(true);
-  }
-
-  function transformPoints(points, rotDeg, flip) {
-    let pts = points.map(([x,y]) => [x,y]);
-
-    if (flip === "x") pts = pts.map(([x,y]) => [-x, y]);
-    if (flip === "y") pts = pts.map(([x,y]) => [x, -y]);
-
-    const rot = ((+rotDeg % 360) + 360) % 360;
-    if (rot === 90) pts = pts.map(([x,y]) => [y, -x]);
-    else if (rot === 180) pts = pts.map(([x,y]) => [-x, -y]);
-    else if (rot === 270) pts = pts.map(([x,y]) => [-y, x]);
-
-    let minX = Infinity, minY = Infinity;
-    for (const [x,y] of pts){ if (x<minX) minX=x; if (y<minY) minY=y; }
-    if (minX !== 0 || minY !== 0) pts = pts.map(([x,y]) => [x - minX, y - minY]);
-
-    return pts;
-  }
-
-  function stampAt(cx, cy) {
-    const key = patternEl.value;
-    const base = PATTERNS[key] || [];
-    if (base.length === 0) return;
-
-    const pts = transformPoints(base, rotEl.value, flipEl.value);
-    pushUndo();
-
-    for (const [dx, dy] of pts) {
-      const x = cx + dx;
-      const y = cy + dy;
-      if (x < 0 || y < 0 || x >= cols || y >= rows) continue;
-      const i = idx(x, y);
-      alive[i] = 1;
-      age[i] = Math.max(1, age[i]);
-    }
-  }
-
+  // ====== 編集（タップ/ドラッグで同じ状態を塗る） ======
   let drawing = false;
   let drawValue = 1;
 
@@ -702,59 +612,10 @@ const cellSizeEl = document.getElementById("cellSize");
     return { x, y };
   }
 
-  function applyPaint(x, y) {
+  function paintAt(x, y) {
     if (x < 0 || y < 0 || x >= cols || y >= rows) return;
     const i = idx(x, y);
-
-    const mode = modeEl.value;
-
-    if (mode === "stamp") {
-      stampAt(x, y);
-      return;
-    }
-
-    if (mode === "toggle") {
-      alive[i] = alive[i] ? 0 : 1;
-      age[i] = alive[i] ? 1 : 0;
-      return;
-    }
-
-    if (mode === "draw") {
-      alive[i] = 1;
-      age[i] = Math.max(1, age[i]);
-      return;
-    }
-
-    if (mode === "erase") {
-      alive[i] = 0;
-      age[i] = 0;
-      return;
-    }
-  }
-
-  function beginStroke(x, y) {
-    pushUndo();
-    applyPaint(x, y);
-
-    if (modeEl.value === "toggle") {
-      const i = idx(clamp(x,0,cols-1), clamp(y,0,rows-1));
-      drawValue = alive[i] ? 0 : 1;
-    }
-  }
-
-  function dragStroke(x, y) {
-    const mode = modeEl.value;
-    if (mode === "stamp") return;
-
-    if (x < 0 || y < 0 || x >= cols || y >= rows) return;
-    const i = idx(x, y);
-
-    if (mode === "toggle") {
-      alive[i] = drawValue;
-      age[i] = drawValue ? Math.max(1, age[i]) : 0;
-    } else {
-      applyPaint(x, y);
-    }
+    setCell(i, drawValue);
   }
 
   canvas.addEventListener("pointerdown", (e) => {
@@ -762,110 +623,54 @@ const cellSizeEl = document.getElementById("cellSize");
     drawing = true;
     canvas.setPointerCapture(e.pointerId);
     const { x, y } = posToCell(e.clientX, e.clientY);
-    beginStroke(x, y);
+    if (x < 0 || y < 0 || x >= cols || y >= rows) return;
+    const i = idx(x, y);
+    drawValue = alive[i] ? 0 : 1;
+    paintAt(x, y);
     draw(true);
   });
 
   canvas.addEventListener("pointermove", (e) => {
     if (!drawing) return;
     const { x, y } = posToCell(e.clientX, e.clientY);
-    dragStroke(x, y);
+    paintAt(x, y);
     draw(true);
   });
 
-  canvas.addEventListener("pointerup", () => { drawing = false; });
-  canvas.addEventListener("pointercancel", () => { drawing = false; });
+  canvas.addEventListener("pointerup", () => { drawing = false; invalidateOsc(); });
+  canvas.addEventListener("pointercancel", () => { drawing = false; invalidateOsc(); });
 
-  const STORAGE_KEY = "lifegame_plus_state_v1";
-
-  function saveState() {
-    pushUndo();
-    const s = snapshot();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  }
-
-  function loadState() {
-    const t = localStorage.getItem(STORAGE_KEY);
-    if (!t) { alert("Saveがありません"); return; }
-    pushUndo();
-    const s = JSON.parse(t);
-    restore(s);
-  }
-
-  function exportState() {
-    const s = snapshot();
-    const blob = new Blob([JSON.stringify(s)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    const date = new Date();
-    const pad2 = (n)=> String(n).padStart(2,"0");
-    a.download = `lifegame_${date.getFullYear()}${pad2(date.getMonth()+1)}${pad2(date.getDate())}_${pad2(date.getHours())}${pad2(date.getMinutes())}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  function importStateFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try{
-        const s = JSON.parse(String(reader.result || ""));
-        pushUndo();
-        restore(s);
-      }catch(err){
-        alert("Importに失敗しました（JSONが壊れているかもしれません）");
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  // UI
+  // ====== UI ======
   playBtn.addEventListener("click", () => setRunning(!running));
-randomBtn.addEventListener("click", () => { pushUndo(); seedRandom((+densityEl.value)/100); draw(true); });
-  clearBtn.addEventListener("click", () => { pushUndo(); clearAll(); draw(true); });
-cellSizeEl.addEventListener("input", () => {
+  randomBtn.addEventListener("click", () => { seedRandom((+densityEl.value)/100); draw(true); });
+  clearBtn.addEventListener("click", () => { clearAll(); draw(true); });
+
+  cellSizeEl.addEventListener("input", () => {
     cellSize = +cellSizeEl.value;
-    resize();
+    resize(true);
+    invalidateOsc();
   });
 
   speedEl.addEventListener("input", () => { acc = 0; });
 
-  colorModeEl.addEventListener("change", () => draw(true));
-  wrapEdgesEl.addEventListener("change", () => draw(true));
-  trailEl.addEventListener("input", () => draw(true));
-
-  rulePresetEl.addEventListener("change", () => { ruleTextEl.value = rulePresetEl.value; });
-
-  applyRuleBtn.addEventListener("click", () => {
-    const preset = rulePresetEl.value;
-    const cleaned = ruleTextEl.value.toUpperCase().replace(/\s+/g,"");
-    if (cleaned === preset) ruleName = rulePresetEl.options[rulePresetEl.selectedIndex].textContent || preset;
-    else ruleName = cleaned;
-    applyRuleFromText(true);
-  });
-
-  saveBtn.addEventListener("click", () => { saveState(); alert("Saveしました"); });
-  loadBtn.addEventListener("click", () => { loadState(); });
-  exportBtn.addEventListener("click", () => { exportState(); });
-  importBtn.addEventListener("click", () => { importFile.click(); });
-  importFile.addEventListener("change", (e) => {
-    const f = e.target.files && e.target.files[0];
-    importStateFile(f);
-    importFile.value = "";
-  });
+  // ここは null になりうるので必ずガード
+  if (colorModeEl) colorModeEl.addEventListener("change", () => draw(true));
+  if (wrapEdgesEl) wrapEdgesEl.addEventListener("change", () => draw(true));
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === " "){ e.preventDefault(); setRunning(!running); }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){ e.preventDefault(); undo(); }
+    if (e.key === " "){
+      e.preventDefault();
+      setRunning(!running);
+    }
   });
 
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", () => { resize(true); invalidateOsc(); });
 
   // 初期化
   initMenuCollapsed();
-  ruleTextEl.value = rule.text;
-  applyRuleFromText(false);
-  resize();
+  resize(false);
+
+  console.log("[SelfTest] OK: UI elements found, app initialized.");
 })();
 </script>
 </body>
