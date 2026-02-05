@@ -1,13 +1,7 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  
-<meta name="theme-color" content="#0c141c">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-
-<meta charset="utf-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
   <title>進化を見守るくん</title>
   <style>
@@ -3016,13 +3010,5 @@ lastSample = 0;
     }
 })();
 </script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
-    });
-  }
-</script>
-
 </body>
 </html>
