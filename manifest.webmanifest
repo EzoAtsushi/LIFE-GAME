@@ -1,6 +1,6 @@
 {
-  "name": "Colorful LifeGame++",
-  "short_name": "LifeGame",
+  "name": "カラフル・ライフゲーム++",
+  "short_name": "ライフゲーム",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
