@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Colorful LifeGame++</title>
+  <title>カラフル・ライフゲーム++</title>
   <meta name="theme-color" content="#f7f7f7" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -93,54 +93,54 @@
 <div id="wrap">
   <header id="topHeader">
     <div class="row" id="topRow">
-      <button id="toggleMenu">Compact</button>
-      <button id="play" class="primary">Play</button>
-      <button id="random">Random</button>
-      <button id="clear">Clear</button>
-      <span class="pill" id="stats">Gen: 0 / Alive: 0</span>
-      <canvas id="spark" width="140" height="36" aria-label="alive history"></canvas>
+      <button id="toggleMenu">簡易表示</button>
+      <button id="play" class="primary">再生</button>
+      <button id="random">ランダム</button>
+      <button id="clear">クリア</button>
+      <span class="pill" id="stats">世代: 0 / 生存: 0</span>
+      <canvas id="spark" width="140" height="36" aria-label="生存数の履歴"></canvas>
     </div>
 
     <div id="menuPanel">
       <div class="row">
         <span class="kv">
-          <label for="cellSize">Cell</label>
+          <label for="cellSize">セル</label>
           <input id="cellSize" type="range" min="4" max="26" value="10">
         </span>
 
         <span class="kv">
-          <label for="speed">Speed</label>
+          <label for="speed">速度</label>
           <input id="speed" type="range" min="1" max="60" value="20">
         </span>
 
         <span class="kv">
-          <label for="density">Rnd</label>
+          <label for="density">初期密度</label>
           <input id="density" type="range" min="1" max="50" value="18">
         </span>
 
         <span class="kv">
-          <label for="colorMode">Color</label>
+          <label for="colorMode">色</label>
           <select id="colorMode">
-            <option value="mono">B/W</option>
-            <option value="age">Age</option>
-            <option value="neon">Neon</option>
-            <option value="rainbow">Rainbow</option>
+            <option value="mono">白黒</option>
+            <option value="age">経過時間</option>
+            <option value="neon">ネオン</option>
+            <option value="rainbow">レインボー</option>
           </select>
         </span>
         <span class="kv">
-          <label for="wrapEdges">Wrap</label>
+          <label for="wrapEdges">端の接続</label>
           <select id="wrapEdges">
-            <option value="on">ON</option>
-            <option value="off">OFF</option>
+            <option value="on">オン</option>
+            <option value="off">オフ</option>
           </select>
         </span>
 
         <span class="kv">
-          <label for="autoStop">Stop</label>
+          <label for="autoStop">自動停止</label>
           <select id="autoStop">
-            <option value="off">OFF</option>
-            <option value="still">Still</option>
-            <option value="blink2">Blink2</option>
+            <option value="off">オフ</option>
+            <option value="still">静止時</option>
+            <option value="blink2">2周期振動</option>
           </select>
         </span>
       </div>
@@ -191,7 +191,7 @@
   const MENU_COLLAPSE_KEY = "lifegame_menu_compact_v1";
   function setMenuCollapsed(collapsed){
     headerEl.classList.toggle("collapsed", collapsed);
-    toggleMenuBtn.textContent = collapsed ? "Menu" : "Compact";
+    toggleMenuBtn.textContent = collapsed ? "メニュー" : "簡易表示";
     try { localStorage.setItem(MENU_COLLAPSE_KEY, collapsed ? "1" : "0"); } catch {}
   }
   function initMenuCollapsed(){
@@ -496,7 +496,7 @@
         }
       }
 
-      statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths}`;
+      statsEl.textContent = `世代: ${gen} / 生存: ${aliveCount} / +${lastBirths} -${lastDeaths}`;
       drawSparkline();
       return;
     }
@@ -521,13 +521,13 @@
       }
     }
 
-    statsEl.textContent = `Gen: ${gen} / Alive: ${aliveCount} / +${lastBirths} -${lastDeaths}`;
+    statsEl.textContent = `世代: ${gen} / 生存: ${aliveCount} / +${lastBirths} -${lastDeaths}`;
     drawSparkline();
   }
 
   function setRunning(on) {
     running = on;
-    playBtn.textContent = running ? "Pause" : "Play";
+    playBtn.textContent = running ? "一時停止" : "再生";
     if (running) requestAnimationFrame(loop);
   }
 
